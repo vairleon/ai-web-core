@@ -27,13 +27,13 @@ export class AuthService {
       if (!count) {
         Logger.log(`no users in the system, creating the superuser`);
         const user = new User();
-        user.email = `z@laizn.com`;
-        user.userName = `laizn`;
-        user.firstName = 'Lai';
-        user.lastName = 'Zenan';
+        user.email = process.env.SUPER_USER_INIT_MAIL || `admin@outlook.com`;
+        user.userName = process.env.SUPER_USER_INIT_NAME || 'admin';
+        user.firstName = 'admin';
+        user.lastName = 'admin';
         user.role = UserRole.ADMIN;
         user.secretAuthPasswd = await this.getSecretAuthByPassword(
-          process.env.SUPER_USER_INIT_PASSWORD || 'laizn',
+          process.env.SUPER_USER_INIT_PASSWORD || 'admin',
         );
         this.userRepository.save(user);
       }
@@ -68,6 +68,30 @@ export class AuthService {
       .limit(1000)
       .getMany();
     return users;
+  }
+
+  private validatePassword(password: string): { isValid: boolean; message: string } {
+    if (password.length < 8) {
+      throw new BadRequestException('Password must be at least 8 characters long');
+    }
+    
+    if (!/[A-Z]/.test(password)) {
+      throw new BadRequestException('Password must contain at least one uppercase letter');
+    }
+    
+    if (!/[a-z]/.test(password)) {
+      throw new BadRequestException('Password must contain at least one lowercase letter');
+    }
+    
+    if (!/[0-9]/.test(password)) {
+      throw new BadRequestException('Password must contain at least one number');
+    }
+    
+    if (!/[!@#$%^&*]/.test(password)) {
+      throw new BadRequestException('Password must contain at least one special character (!@#$%^&*)');
+    }
+    
+    return { isValid: true, message: 'Password is strong' };
   }
 
   async register({

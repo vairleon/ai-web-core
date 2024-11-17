@@ -11,7 +11,7 @@ export const dataSourceConfig: DataSourceOptions = {
   port: Number(process.env.DB_PORT) || 3306,
   username: process.env.DB_USERNAME || 'root',
   password: process.env.DB_PASSWORD || 'root',
-  database: process.env.DB_DATABASE || 'aiweb',
+  database: process.env.DB_DATABASE || 'test',
   entities: [Authority, User, Task, TaskTemplate, TaskWorker, TaskTemplateMeta],
   migrations: ['dist/db/migrations/*'],
   migrationsRun: true,
