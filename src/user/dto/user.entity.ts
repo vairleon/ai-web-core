@@ -10,8 +10,9 @@ import { Authority } from './authority.entity';
 import { IPublicUser } from './user.interface';
 export enum UserRole {
   ADMIN = 'admin',
-  NORMAL = 'normal',
   TASK_SLAVE = 'task_slave',
+  MEMBER = 'member',
+  NORMAL = 'normal',
   ANONYMOUS = 'anonymous',
 }
 

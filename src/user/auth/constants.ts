@@ -1,12 +1,16 @@
 import { SetMetadata } from '@nestjs/common';
+
 export const jwtConstants = {
-  secret:
-    process.env.JWT_SECRET ||
-    'DO NOT USE THIS VALUE. INSTEAD, CREATE A COMPLEX SECRET AND KEEP IT SAFE OUTSIDE OF THE SOURCE CODE.',
+  secret: process.env.JWT_SECRET
 };
-export const passwdSalt =
-  process.env.BCRYPT_SALT ||
-  '$2b$10$VB3sOORci61TGQtq7vqI0OdqmD22381d07I4nJjN1RAxLn75.dpza';
+
+export const passwdSalt = process.env.BCRYPT_SALT;
+
+// Throw error if environment variables are not set
+if (!process.env.JWT_SECRET || !process.env.BCRYPT_SALT) {
+  throw new Error('JWT_SECRET and BCRYPT_SALT environment variables must be set');
+}
+
 export const IS_PUBLIC_KEY = 'isPublic';
 export const IS_ADMIN_KEY = 'isAdmin';
 export const Public = () => SetMetadata(IS_PUBLIC_KEY, true);

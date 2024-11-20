@@ -22,8 +22,12 @@ export class AuthService {
     private authorityRepository: Repository<Authority>,
     private jwtService: JwtService,
   ) {
+    if (!process.env.SUPER_USER_INIT_PASSWORD) {
+      throw new Error('SUPER_USER_INIT_PASSWORD environment variable must be set');
+    }
+    
     this.userRepository.count().then(async (count) => {
-      Logger.debug(`currently ${count} users are registerd in the service`);
+      Logger.debug(`currently ${count} users are registered in the service`);
       if (!count) {
         Logger.log(`no users in the system, creating the superuser`);
         const user = new User();
@@ -33,7 +37,7 @@ export class AuthService {
         user.lastName = 'admin';
         user.role = UserRole.ADMIN;
         user.secretAuthPasswd = await this.getSecretAuthByPassword(
-          process.env.SUPER_USER_INIT_PASSWORD || 'admin',
+          process.env.SUPER_USER_INIT_PASSWORD
         );
         this.userRepository.save(user);
       }
