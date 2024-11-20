@@ -4,5 +4,6 @@ export class UserExtraInfo {
   birthday?: Date;
   country?: string;
   city?: string;
+  localtion? :string;
   description?: string;
 }

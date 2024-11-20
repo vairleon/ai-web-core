@@ -13,7 +13,7 @@ import * as bcrypt from 'bcrypt';
 import { Authority } from '../dto/authority.entity';
 import * as emailValidator from 'email-validator';
 import { LoginParams } from '../dto/login.validation';
-
+import { UserExtraInfo } from '../dto/user-extra-info';
 @Injectable()
 export class AuthService {
   constructor(
@@ -212,5 +212,26 @@ export class AuthService {
     }
     // logged in.
     return this.getLoginAccessToken(user);
+  }
+
+  async updateLastName(userId: number, lastName: string): Promise<User> {
+    const user = await this.getOneById({ id: userId });
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+    user.lastName = lastName;
+    return this.userRepository.save(user);
+  }
+
+  async updateExtraInfo(userId: number, extraInfo: UserExtraInfo): Promise<User> {
+    const user = await this.getOneById({ id: userId });
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+    user.extraInfo = {
+      ...user.extraInfo,
+      ...extraInfo,
+    };
+    return this.userRepository.save(user);
   }
 }

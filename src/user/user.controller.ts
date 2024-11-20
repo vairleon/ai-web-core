@@ -7,13 +7,14 @@ import {
   UnauthorizedException,
   HttpCode,
   HttpStatus,
+  Put,
 } from '@nestjs/common';
 import { AuthService } from './auth/auth.service';
 import { Public } from './auth/constants';
 import { UserRegisterParams } from './dto/register.validation';
 import { User } from './dto/user.entity';
 import { IPublicUser } from './dto/user.interface';
-
+import { UserExtraInfo } from './dto/user-extra-info';
 @Controller('user')
 export class UserController {
   constructor(private authService: AuthService) {}
@@ -40,5 +41,25 @@ export class UserController {
       ...user.getPublicData(),
       accessToken,
     };
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Put('update-name')
+  async updateLastName(
+    @Request() req: { user_id: number },
+    @Body() body: { lastName: string },
+  ): Promise<IPublicUser> {
+    const user = await this.authService.updateLastName(req.user_id, body.lastName);
+    return user.getPublicData();
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Put('update-profile')
+  async updateProfile(
+    @Request() req: { user_id: number },
+    @Body() body: { extraInfo: UserExtraInfo },
+  ): Promise<IPublicUser> {
+    const user = await this.authService.updateExtraInfo(req.user_id, body.extraInfo);
+    return user.getPublicData();
   }
 }
