@@ -7,7 +7,7 @@ import {
   Index,
 } from 'typeorm';
 import { Authority } from './authority.entity';
-import { IPublicUser } from './user.interface';
+import { IPrivateUser, IPublicUser } from './user.interface';
 import { UserExtraInfo } from './user-extra-info';
 
 export enum UserRole {
@@ -76,7 +76,7 @@ export class User {
     return this.authorities.map((a) => a.featureKey);
   }
 
-  getPublicData(): IPublicUser {
+  getAllData(): IPrivateUser {
     return {
       id: this.id,
       email: this.email,
@@ -87,6 +87,15 @@ export class User {
       role: this.role,
       authorityKeys: this.authorityKeys,
       credit: this.credit,
+      extraInfo: this.extraInfo,
+    };
+  }
+
+  getPublicData(): IPublicUser {
+    return {
+      id: this.id,
+      firstName: this.firstName,
+      lastName: this.lastName,
       extraInfo: this.extraInfo,
     };
   }

@@ -13,15 +13,28 @@ import { AuthService } from './auth/auth.service';
 import { Public } from './auth/constants';
 import { UserRegisterParams } from './dto/register.validation';
 import { User } from './dto/user.entity';
-import { IPublicUser } from './dto/user.interface';
+import { IPublicUser, IPrivateUser } from './dto/user.interface';
 import { UserExtraInfo } from './dto/user-extra-info';
+import { SelfOrAdmin } from './auth/constants';
 @Controller('user')
 export class UserController {
   constructor(private authService: AuthService) {}
 
   @HttpCode(HttpStatus.OK)
+  @SelfOrAdmin()
   @Get('profile')
-  async getProfile(@Request() req: { user_id: number }): Promise<IPublicUser> {
+  async getProfile(@Request() req: { user_id: number }): Promise<IPrivateUser> {
+    const user = await this.authService.getOneById({ id: req.user_id });
+    if (!user) {
+      throw new UnauthorizedException();
+    }
+    return user.getAllData();
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Public()
+  @Get('public-profile')
+  async getPublicProfile(@Request() req: { user_id: number }): Promise<IPublicUser> {
     const user = await this.authService.getOneById({ id: req.user_id });
     if (!user) {
       throw new UnauthorizedException();
@@ -29,8 +42,8 @@ export class UserController {
     return user.getPublicData();
   }
 
-  @Public()
   @HttpCode(HttpStatus.OK)
+  @Public()
   @Post('register')
   async register(
     @Body() body: UserRegisterParams,
@@ -44,6 +57,7 @@ export class UserController {
   }
 
   @HttpCode(HttpStatus.OK)
+  @SelfOrAdmin()
   @Put('update-name')
   async updateLastName(
     @Request() req: { user_id: number },
@@ -54,6 +68,7 @@ export class UserController {
   }
 
   @HttpCode(HttpStatus.OK)
+  @SelfOrAdmin()
   @Put('update-profile')
   async updateProfile(
     @Request() req: { user_id: number },

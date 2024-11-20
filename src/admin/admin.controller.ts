@@ -39,6 +39,16 @@ export class AdminController {
   }
 
   @HttpCode(HttpStatus.OK)
+  @Get('users/:id')
+  async getUserById(@Param('id') id: number) {
+    const user = await this.authService.getOneById({id});
+    if (!user) {
+      throw new NotFoundException();
+    }
+    return user;
+  }
+
+  @HttpCode(HttpStatus.OK)
   @Post('user/role')
   async changeUserRole(
     @Body() body: { userId: number; role: UserRole },

@@ -9,7 +9,7 @@ export type IRegisterUser = Pick<
     password: string;
   };
 
-export type IPublicUser = Pick<
+export type IPrivateUser = Pick<
   User,
   | 'id'
   | 'email'
@@ -22,4 +22,10 @@ export type IPublicUser = Pick<
   | 'credit'
 > & {
   extraInfo?: UserExtraInfo;
+};
+
+
+export type IPublicUser = Pick<User, | 'id' | 'firstName' | 'lastName'> & 
+{
+  extraInfo?: Pick<UserExtraInfo, | 'profileImage' | 'gender' | 'description'>
 };
