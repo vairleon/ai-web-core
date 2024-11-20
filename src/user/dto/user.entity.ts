@@ -8,6 +8,8 @@ import {
 } from 'typeorm';
 import { Authority } from './authority.entity';
 import { IPublicUser } from './user.interface';
+import { UserExtraInfo } from './user-extra-info';
+
 export enum UserRole {
   ADMIN = 'admin',
   TASK_SLAVE = 'task_slave',
@@ -61,6 +63,12 @@ export class User {
   })
   authorities: Authority[];
 
+  @Column({ type: 'int', default: 0 })
+  credit: number;
+
+  @Column({ type: 'json', nullable: true })
+  extraInfo: UserExtraInfo;
+
   get authorityKeys(): string[] {
     if (!this.authorities) {
       return [];
@@ -78,6 +86,8 @@ export class User {
       phone: this.phone,
       role: this.role,
       authorityKeys: this.authorityKeys,
+      credit: this.credit,
+      extraInfo: this.extraInfo,
     };
   }
 }

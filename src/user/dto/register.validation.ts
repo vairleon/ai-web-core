@@ -6,6 +6,9 @@ import {
   ValidateIf,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { UserExtraInfo } from './user-extra-info';
+import { Type } from 'class-transformer';
+import { IsOptional } from 'class-validator';
 
 export class UserRegisterParams implements IRegisterUser {
   @ApiProperty()
@@ -34,4 +37,9 @@ export class UserRegisterParams implements IRegisterUser {
 
   @ApiProperty()
   validateCode?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @Type(() => UserExtraInfo)
+  extraInfo?: UserExtraInfo;
 }

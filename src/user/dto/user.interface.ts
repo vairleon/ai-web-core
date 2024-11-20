@@ -1,10 +1,11 @@
 import { User } from './user.entity';
+import { UserExtraInfo } from './user-extra-info';
 
 export type IRegisterUser = Pick<
   User,
   'firstName' | 'lastName' | 'email' | 'userName'
 > &
-  Partial<Pick<User, 'phone'>> & {
+  Partial<Pick<User, 'phone' | 'extraInfo'>> & {
     password: string;
   };
 
@@ -18,4 +19,7 @@ export type IPublicUser = Pick<
   | 'role'
   | 'userName'
   | 'authorityKeys'
->;
+  | 'credit'
+> & {
+  extraInfo?: UserExtraInfo;
+};
