@@ -1,15 +1,20 @@
 import {
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
+  Param,
   Post,
+  Res,
   Request,
+  Delete,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { Response } from 'express';
 import { AuthorizedRequest } from 'src/user/auth/interface';
-import { FileService } from './file.service';
+import { FileService } from 'src/file/file.service';
 
 @Controller('file')
 export class FileController {
@@ -24,4 +29,23 @@ export class FileController {
   ) {
     return this.fileService.uploadFile(request.user, file);
   }
+
+  // @Get(':userId/:filename')
+  // async getFile(
+  //   @Param('userId') userId: string,
+  //   @Param('filename') filename: string,
+  //   @Res() res: Response,
+  // ) {
+  //   const file = await this.fileService.getFile(parseInt(userId), filename);
+  //   res.send(file);
+  // }
+
+  // @Delete(':filename')
+  // async deleteFile(
+  //   @Param('filename') filename: string,
+  //   @Request() request: AuthorizedRequest,
+  // ) {
+  //   await this.fileService.deleteFile(request.user.id, filename);
+  //   return { message: 'File deleted successfully' };
+  // }
 }
