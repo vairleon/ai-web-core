@@ -7,6 +7,7 @@ import {
   NotFoundException,
   Param,
   Post,
+  Put,
   Request,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -122,5 +123,19 @@ export class TasksController {
       );
     }
     return await this.tasksService.rejectTask(body);
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('refresh/:id')
+  async refreshPendingTask(
+    @Param('id') id: number,
+    @Request() request: AuthorizedRequest
+  ) {
+
+    return await this.tasksService.refreshPendingTask(id);
+    // return {
+    //   message: `Successfully refreshed task #${id} back to queue`,
+    //   task: updatedTask
+    // };
   }
 }

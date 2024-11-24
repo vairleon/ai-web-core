@@ -16,6 +16,10 @@ import { LoginParams } from '../dto/login.validation';
 import { UserExtraInfo } from '../dto/user-extra-info';
 @Injectable()
 export class AuthService {
+  private readonly registrationAttempts = new Map<string, number>();
+  private readonly MAX_REGISTRATIONS_PER_IP = 10;
+  private readonly REGISTRATION_WINDOW = 24 * 60 * 60 * 1000; // 24 hours
+
   constructor(
     @InjectRepository(User) private userRepository: Repository<User>,
     @InjectRepository(Authority)
@@ -74,69 +78,71 @@ export class AuthService {
     return users;
   }
 
-  private validatePassword(password: string): { isValid: boolean; message: string } {
-    if (password.length < 8) {
-      throw new BadRequestException('Password must be at least 8 characters long');
-    }
+  private validatePasswordStrength(password: string): boolean {
+    if (password.length < 8) return false;
     
-    if (!/[A-Z]/.test(password)) {
-      throw new BadRequestException('Password must contain at least one uppercase letter');
-    }
+    let strengthCount = 0;
+    if (/[A-Z]/.test(password)) strengthCount++;
+    if (/[a-z]/.test(password)) strengthCount++;
+    if (/[0-9]/.test(password)) strengthCount++;
+    if (/[^A-Za-z0-9]/.test(password)) strengthCount++;
     
-    if (!/[a-z]/.test(password)) {
-      throw new BadRequestException('Password must contain at least one lowercase letter');
-    }
-    
-    if (!/[0-9]/.test(password)) {
-      throw new BadRequestException('Password must contain at least one number');
-    }
-    
-    if (!/[!@#$%^&*]/.test(password)) {
-      throw new BadRequestException('Password must contain at least one special character (!@#$%^&*)');
-    }
-    
-    return { isValid: true, message: 'Password is strong' };
+    return strengthCount >= 2;
   }
 
-  async register({
-    email,
-    userName,
-    password,
-    firstName,
-    lastName,
-    phone,
-  }: IRegisterUser): Promise<User> {
-    if (!email) {
+  async register(params: IRegisterUser, ip: string): Promise<User> {
+    // Check IP-based registration limit
+    const attempts = this.registrationAttempts.get(ip) || 0;
+    if (attempts >= this.MAX_REGISTRATIONS_PER_IP) {
+      throw new BadRequestException('Too many registration attempts from this IP');
+    }
+
+    // Update registration attempts
+    this.registrationAttempts.set(ip, attempts + 1);
+    setTimeout(() => {
+      const currentAttempts = this.registrationAttempts.get(ip);
+      if (currentAttempts) {
+        this.registrationAttempts.set(ip, currentAttempts - 1);
+      }
+    }, this.REGISTRATION_WINDOW);
+
+    if (!params.email) {
       throw new BadRequestException('the email should not be empty');
     }
-    if (!emailValidator.validate(email)) {
+    if (!emailValidator.validate(params.email)) {
       throw new BadRequestException('the email is not a valid email');
     }
 
-    if (!userName) {
+    if (!params.userName) {
       throw new BadRequestException('the userName should not be empty');
     }
 
-    const existUserByEmail = await this.getOneByEmail({ email });
+    const existUserByEmail = await this.getOneByEmail({ email: params.email });
 
     if (existUserByEmail) {
       throw new BadRequestException('the email is already registered');
     }
 
-    const existUserByUserName = await this.getOneByUserName({ userName });
+    const existUserByUserName = await this.getOneByUserName({ userName: params.userName });
     if (existUserByUserName) {
       throw new BadRequestException('the userName is already used');
     }
 
+    if (!this.validatePasswordStrength(params.password)) {
+      throw new BadRequestException('Password must be at least 8 characters and contain at least 2 of the following: uppercase, lowercase, numbers, special characters');
+    }
+
     const user = new User();
-    user.email = email;
-    user.secretAuthPasswd = await this.getSecretAuthByPassword(password);
-    user.userName = userName;
-    user.firstName = firstName;
-    user.lastName = lastName;
+    user.email = params.email;
+    user.secretAuthPasswd = await this.getSecretAuthByPassword(params.password);
+    user.userName = params.userName;
+    user.lastName = params.lastName;
     user.role = UserRole.NORMAL;
-    if (phone) {
-      user.phone = phone;
+    if (params.firstName) {
+      user.firstName = params.firstName;
+    }
+    if (params.phone) {
+      user.phone = params.phone;
     }
 
     const savedUser = await this.userRepository.save(user);

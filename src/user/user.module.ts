@@ -9,6 +9,8 @@ import { UserController } from './user.controller';
 import { Authority } from './dto/authority.entity';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './auth/auth.guard';
+import { ThrottlerModule } from '@nestjs/throttler';
+import { CustomThrottlerGuard } from './guards/rate-limit.guard';
 
 @Module({
   imports: [
@@ -16,9 +18,12 @@ import { AuthGuard } from './auth/auth.guard';
     JwtModule.register({
       global: true,
       secret: jwtConstants.secret,
-      // signOptions: { expiresIn: '60d' },
       signOptions: { expiresIn: '24h' },
     }),
+    ThrottlerModule.forRoot([{
+      ttl: 60000, // 1 minute
+      limit: 10, // 10 requests per minute for regular endpoints
+    }]),
   ],
   providers: [
     AuthService,
@@ -26,6 +31,10 @@ import { AuthGuard } from './auth/auth.guard';
       provide: APP_GUARD,
       useClass: AuthGuard,
     },
+    {
+      provide: APP_GUARD,
+      useClass: CustomThrottlerGuard,
+    }
   ],
   controllers: [AuthController, UserController],
   exports: [AuthService],

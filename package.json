@@ -31,6 +31,7 @@
     "@nestjs/platform-express": "^9.4.3",
     "@nestjs/serve-static": "^4.0.2",
     "@nestjs/swagger": "^6.3.0",
+    "@nestjs/throttler": "^6.2.1",
     "@nestjs/typeorm": "^9.0.1",
     "@types/bcrypt": "^5.0.2",
     "ali-oss": "^6.21.0",

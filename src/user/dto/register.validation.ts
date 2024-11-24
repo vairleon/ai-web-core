@@ -12,7 +12,6 @@ import { IsOptional } from 'class-validator';
 
 export class UserRegisterParams implements IRegisterUser {
   @ApiProperty()
-  @IsNotEmpty()
   firstName: string;
 
   @ApiProperty()
@@ -31,8 +30,18 @@ export class UserRegisterParams implements IRegisterUser {
   @ApiProperty()
   phone?: string;
 
-  @ApiProperty()
-  @IsStrongPassword()
+  @ApiProperty({
+    description: 'Password must be at least 8 characters and contain at least 2 of the following: uppercase, lowercase, numbers, special characters'
+  })
+  @IsStrongPassword({
+    minLength: 8,
+    minLowercase: 0,
+    minUppercase: 0,
+    minNumbers: 0,
+    minSymbols: 0
+  }, {
+    message: 'Password must be at least 8 characters and contain at least 2 of the following: uppercase, lowercase, numbers, special characters'
+  })
   password: string;
 
   @ApiProperty()

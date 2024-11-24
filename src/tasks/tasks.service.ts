@@ -320,4 +320,41 @@ export class TasksService {
     await this.taskRepository.save(task);
     return task;
   }
+
+  async refreshPendingTask(taskId: number): Promise<Task> {
+    const task = await this.dataSource.transaction(
+      async (transactionalEntityManager) => {
+        // Find the specific pending task
+        const pendingTask = await transactionalEntityManager
+          .createQueryBuilder()
+          .select('task')
+          .from(Task, 'task')
+          .where('task.id = :taskId', { taskId })
+          .andWhere('task.status = :status', { status: TaskStatus.PENDING })
+          .getOne();
+
+        if (!pendingTask) {
+          throw new BadRequestException(
+            'Task not found or is not in pending status'
+          );
+        }
+
+        // Check if task has been pending for more than 30 seconds
+        const isPendingTooLong = 
+          Date.now() - pendingTask.updateTime.valueOf() > 30 * 1000;
+
+        if (!isPendingTooLong) {
+          throw new BadRequestException(
+            'Task has not been pending long enough to refresh (minimum 30 seconds)'
+          );
+        }
+
+        // Update status to QUEUEING
+        pendingTask.status = TaskStatus.QUEUEING;
+        return await transactionalEntityManager.save(pendingTask);
+      }
+    );
+
+    return task;
+  }
 }

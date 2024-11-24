@@ -35,7 +35,7 @@ export class User {
   @Column({ nullable: true })
   phone: string;
 
-  @Column()
+  @Column({ default: '' })
   firstName: string;
 
   @Column()

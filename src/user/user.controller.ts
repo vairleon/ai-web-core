@@ -8,6 +8,7 @@ import {
   HttpCode,
   HttpStatus,
   Put,
+  Ip
 } from '@nestjs/common';
 import { AuthService } from './auth/auth.service';
 import { Public } from './auth/constants';
@@ -47,8 +48,9 @@ export class UserController {
   @Post('register')
   async register(
     @Body() body: UserRegisterParams,
+    @Ip() ip: string,
   ): Promise<IPublicUser & { accessToken: string }> {
-    const user = await this.authService.register(body);
+    const user = await this.authService.register(body, ip);
     const { accessToken } = await this.authService.getLoginAccessToken(user);
     return {
       ...user.getPublicData(),

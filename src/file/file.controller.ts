@@ -10,13 +10,16 @@ import {
   Delete,
   UploadedFile,
   UseInterceptors,
+  UseGuards,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express';
 import { AuthorizedRequest } from 'src/user/auth/interface';
 import { FileService } from 'src/file/file.service';
+import { CustomThrottlerGuard } from 'src/user/guards/rate-limit.guard';
 
 @Controller('file')
+@UseGuards(CustomThrottlerGuard)
 export class FileController {
   constructor(private fileService: FileService) {}
 

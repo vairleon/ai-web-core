@@ -3,9 +3,9 @@ import { UserExtraInfo } from './user-extra-info';
 
 export type IRegisterUser = Pick<
   User,
-  'firstName' | 'lastName' | 'email' | 'userName'
+  'lastName' | 'email' | 'userName'
 > &
-  Partial<Pick<User, 'phone' | 'extraInfo'>> & {
+  Partial<Pick<User, 'firstName' | 'phone' | 'extraInfo'>> & {
     password: string;
   };
 
