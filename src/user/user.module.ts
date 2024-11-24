@@ -20,10 +20,10 @@ import { CustomThrottlerGuard } from './guards/rate-limit.guard';
       secret: jwtConstants.secret,
       signOptions: { expiresIn: '24h' },
     }),
-    ThrottlerModule.forRoot([{
-      ttl: 60000, // 1 minute
-      limit: 10, // 10 requests per minute for regular endpoints
-    }]),
+    // ThrottlerModule.forRoot([{
+    //   ttl: 60000, // 1 minute
+    //   limit: 10, // 10 requests per minute for regular endpoints
+    // }]),
   ],
   providers: [
     AuthService,
@@ -31,10 +31,10 @@ import { CustomThrottlerGuard } from './guards/rate-limit.guard';
       provide: APP_GUARD,
       useClass: AuthGuard,
     },
-    {
-      provide: APP_GUARD,
-      useClass: CustomThrottlerGuard,
-    }
+    // {
+    //   provide: APP_GUARD,
+    //   useClass: CustomThrottlerGuard,
+    // }
   ],
   controllers: [AuthController, UserController],
   exports: [AuthService],

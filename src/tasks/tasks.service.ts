@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
-import { DataSource, In, Repository } from 'typeorm';
+import { DataSource, In, Repository, MoreThanOrEqual } from 'typeorm';
 import { AddTaskParams } from './dto/addTask.validation';
 import { Task, TaskStatus } from './dto/task.entity';
 import { TaskTemplate } from './dto/taskTemplate.entity';
@@ -60,6 +60,11 @@ export class TasksService {
   }
 
   async getAllTasksByNormalUser(userId: number): Promise<Task[]> {
+    // 7 days ago
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+    //
     const allNormalUserTasks = await this.dataSource.transaction(
       async (transactionalEntityManager) => {
         const visibleTasks = await transactionalEntityManager.findBy(Task, {
@@ -69,7 +74,9 @@ export class TasksService {
           template: {
             visible: true,
           },
+          createTime: MoreThanOrEqual(sevenDaysAgo),
         });
+
         for (const task of visibleTasks) {
           if (
             [TaskStatus.PENDING, TaskStatus.RUNNING].includes(task.status) &&
