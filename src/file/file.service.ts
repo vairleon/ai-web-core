@@ -34,14 +34,14 @@ export class FileService {
 
       // Validate file type and size
       const allowedMimeTypes = ['image/jpeg', 'image/png'];
-      const maxSize = 5 * 1024 * 1024; // 5MB
+      const maxSize = 20 * 1024 * 1024; // 20MB
 
       if (!allowedMimeTypes.includes(file.mimetype)) {
         throw new Error('Invalid file type. Only JPEG, PNG and GIF are allowed.');
       }
 
       if (file.size > maxSize) {
-        throw new Error('File size exceeds the 5MB limit.');
+        throw new Error('File size exceeds the 20MB limit.');
       }
 
       // Write file to disk

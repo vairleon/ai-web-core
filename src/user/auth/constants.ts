@@ -17,5 +17,3 @@ export const IS_PUBLIC_KEY = 'isPublic';
 export const IS_ADMIN_KEY = 'isAdmin';
 export const Public = () => SetMetadata(IS_PUBLIC_KEY, true);
 export const Admin = () => SetMetadata(IS_ADMIN_KEY, true);
-export const IS_SELF_OR_ADMIN_KEY = 'isSelfOrAdmin';
-export const SelfOrAdmin = () => SetMetadata(IS_SELF_OR_ADMIN_KEY, true);

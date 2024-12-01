@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { Request } from 'express';
 import { JwtService } from '@nestjs/jwt';
-import { IS_ADMIN_KEY, IS_PUBLIC_KEY, jwtConstants, IS_SELF_OR_ADMIN_KEY } from './constants';
+import { IS_ADMIN_KEY, IS_PUBLIC_KEY, jwtConstants } from './constants';
 import { Reflector } from '@nestjs/core';
 import { AuthService } from './auth.service';
 import { UserRole } from '../dto/user.entity';
@@ -50,19 +50,8 @@ export class AuthGuard implements CanActivate {
         context.getClass(),
         context.getHandler(),
       ]);
-      const isSelfOrAdmin = this.reflector.getAllAndOverride<boolean>(IS_SELF_OR_ADMIN_KEY, [
-        context.getClass(),
-        context.getHandler(),
-      ]);
-
       if (isAdmin && user.role !== UserRole.ADMIN) {
         return false;
-      }
-
-      if (isSelfOrAdmin) {
-        const params = request.params;
-        const targetUserId = Number(params.id) || Number(request.body?.user_id);
-        return user.role === UserRole.ADMIN || request.user_id === targetUserId;
       }
 
       return true;
